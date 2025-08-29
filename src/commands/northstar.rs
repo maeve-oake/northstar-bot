@@ -1,8 +1,7 @@
 use reqwest::Response;
 use serenity::framework::standard::macros::command;
 use serenity::framework::standard::CommandResult;
-use serenity::model::prelude::*;
-use serenity::prelude::*;
+use serenity::all::*;
 use std::collections::HashMap;
 
 use crate::MS;
@@ -190,8 +189,6 @@ async fn search(ctx: &Context, msg: &Message) -> CommandResult {
                         .await
                         .unwrap();
                 } else {
-                    let mut search_players_online: u64 = 0;
-                    let mut search_playerslots: u64 = 0;
                     let mut searchstring = "```diff\n+ ".to_owned()
                         + &lobbies.len().to_string()
                         + &" servers were found".to_owned();
@@ -199,10 +196,6 @@ async fn search(ctx: &Context, msg: &Message) -> CommandResult {
                         searchstring += " - displaying first 10 results \n";
                     }
                     for i in 0..lobbies.len() {
-                        search_players_online +=
-                            lobbies[i].get("playerCount").unwrap().as_u64().unwrap();
-                        search_playerslots +=
-                            lobbies[i].get("maxPlayers").unwrap().as_u64().unwrap();
                         if i < 10 {
                             let playingtext: String;
                             if lobbies[i]["hasPassword"] == true {

@@ -1,8 +1,6 @@
 use serenity::framework::standard::macros::command;
 use serenity::framework::standard::CommandResult;
-use serenity::model::prelude::*;
-use serenity::prelude::*;
-use serenity::utils::Colour;
+use serenity::all::*;
 
 #[command]
 #[aliases(video, vid, host)]
@@ -32,25 +30,24 @@ async fn github(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 async fn info(ctx: &Context, msg: &Message) -> CommandResult {
-    msg.channel_id
-        .send_message(ctx, |m| {
-            m.content("").embed(|e| {
-                e.title("Northstar Servers Bot")
-                    .description(
+    let embed = CreateEmbed::new()
+        .title("Northstar Servers Bot")
+        .description(
 "Made by hummusbird
 Remade in Rust by H0L0
 
 A discord bot that displays that status of the northstar.tf servers
 
 ",
-                    )
-                    .field("hummusbird", "https://birb.cc", false)
-                    .field("H0L0", "https://h0l0.cc", false)
-                    .colour(Colour::from_rgb(244, 32, 105))
-                    .thumbnail("https://northstar.tf/assets/logo_1k.png")
-                    .url("https://github.com/hummusbird/northstar-bot")
-            })
-        })
-        .await?;
+        )
+        .field("hummusbird", "https://birb.cc", false)
+        .field("H0L0", "https://h0l0.cc", false)
+        .color(Color::from_rgb(244, 32, 105))
+        .thumbnail("https://northstar.tf/assets/logo_1k.png")
+        .url("https://github.com/hummusbird/northstar-bot");
+
+    let message = CreateMessage::new().content("").embed(embed);
+
+    msg.channel_id.send_message(ctx, message).await?;
     Ok(())
 }

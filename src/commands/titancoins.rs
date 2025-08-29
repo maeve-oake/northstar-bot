@@ -2,15 +2,14 @@ use std::time::Duration;
 
 use rand::Rng;
 use serenity::framework::standard::CommandResult;
-use serenity::model::prelude::*;
-use serenity::prelude::*;
+use serenity::all::*;
 use tokio::time::sleep;
 
-use serenity::builder::CreateApplicationCommand;
-use serenity::model::prelude::interaction::application_command::CommandDataOption;
+use serenity::all::CreateCommand;
+use serenity::all::CommandDataOption;
 
 pub async fn redeem(ctx: &Context, msg: &Message) -> CommandResult {
-    let redeem_amount: i32 = rand::thread_rng().gen_range(50..250);
+    let redeem_amount: i32 = rand::rng().random_range(50..250);
     let redeemedmsg = msg
         .reply_ping(
             ctx,
@@ -33,7 +32,7 @@ pub async fn redeem(ctx: &Context, msg: &Message) -> CommandResult {
 
 
 pub fn run(_options: &[CommandDataOption]) -> String {
-    let redeem_amount: i32 = rand::thread_rng().gen_range(50..250);
+    let redeem_amount: i32 = rand::rng().random_range(50..250);
 "```diff
 +"
         .to_owned()
@@ -42,6 +41,6 @@ pub fn run(_options: &[CommandDataOption]) -> String {
 "
 }
 
-pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("redeem").description("redeem your scorchbucks")
+pub fn register() -> CreateCommand {
+    CreateCommand::new("redeem").description("redeem your scorchbucks")
 }

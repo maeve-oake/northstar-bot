@@ -2,13 +2,13 @@ use std::env;
 
 use serenity::async_trait;
 use serenity::framework::standard::macros::group;
-use serenity::framework::standard::StandardFramework;
-use serenity::model::application::command::Command;
-use serenity::model::application::interaction::{Interaction, InteractionResponseType};
+use serenity::framework::standard::{Configuration, StandardFramework};
+use serenity::all::Command;
+use serenity::all::{Interaction, CreateInteractionResponseMessage, CreateInteractionResponse};
 use serenity::model::channel::Message;
-use serenity::model::gateway::{Activity, Ready};
-use serenity::model::prelude::Guild;
-use serenity::model::user::OnlineStatus;
+use serenity::all::{ActivityData, Ready};
+use serenity::all::Guild;
+use serenity::all::OnlineStatus;
 use serenity::prelude::*;
 
 mod commands;
@@ -45,16 +45,14 @@ impl EventHandler for Handler {
         println!("Connected as {}", ready.user.name);
         let guilds = ctx.cache.guilds().len();
         println!("The bot is in {} guilds", guilds);
-        let _guild_command = Command::create_global_application_command(&ctx.http, |command| {
-            commands::titancoins::register(command)
-        })
+        let _guild_command = Command::create_global_command(&ctx.http, commands::titancoins::register())
         .await;
 
         set_activity(ctx).await;
     }
 
-    async fn guild_create(&self, _ctx: Context, guild: Guild, _is_new: bool) {
-        new_server_reg(*guild.id.as_u64()).await.expect("fuck");
+    async fn guild_create(&self, _ctx: Context, guild: Guild, _is_new: Option<bool>) {
+        new_server_reg(guild.id.get()).await.expect("fuck");
     }
 
     async fn message(&self, ctx: Context, msg: Message) {
@@ -71,21 +69,18 @@ impl EventHandler for Handler {
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-        if let Interaction::ApplicationCommand(command) = interaction {
+        if let Interaction::Command(command) = interaction {
 
             let content = match command.data.name.as_str() {
                 "redeem" => commands::titancoins::run(&command.data.options),
                 _ => ":(".to_string(),
             };
 
-            if let Err(why) = command
-                .create_interaction_response(&ctx.http, |response| {
-                    response
-                        .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| message.content(content))
-                })
-                .await
-            {
+            let response = CreateInteractionResponse::Message(
+                CreateInteractionResponseMessage::new().content(content)
+            );
+
+            if let Err(why) = command.create_response(&ctx.http, response).await {
                 println!("Cannot respond to slash command: {}", why);
             }
         }
@@ -93,9 +88,9 @@ impl EventHandler for Handler {
 }
 
 async fn set_activity(ctx: Context) {
-    let activity = Activity::playing("Northstar.TF");
+    let activity = ActivityData::playing("Northstar.TF");
     let status = OnlineStatus::Online;
-    ctx.set_presence(Some(activity), status).await;
+    ctx.set_presence(Some(activity), status);
 }
 
 #[tokio::main]
@@ -110,15 +105,18 @@ async fn main() {
         }
     }
 
-    let mut framework = StandardFramework::new().configure(|c| {
-        c.dynamic_prefix(|_, msg| Box::pin(async move { check_db_prefix(msg.guild_id) }))
-            .prefix("")
-    });
+    let config = Configuration::new()
+        .dynamic_prefix(|_, msg| Box::pin(async move { check_db_prefix(msg.guild_id) }))
+        .prefix("");
 
-    framework.group_add(&GENERAL_GROUP);
-    framework.group_add(&LIST_GROUP);
-    framework.group_add(&LINK_GROUP);
-    framework.group_add(&NORTHSTAR_GROUP);
+    let framework = StandardFramework::new();
+    framework.configure(config);
+
+    let framework = framework
+        .group(&GENERAL_GROUP)
+        .group(&LIST_GROUP)
+        .group(&LINK_GROUP)
+        .group(&NORTHSTAR_GROUP);
 
     let token = env::var("DISCORD_TOKEN").expect("token");
     let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;

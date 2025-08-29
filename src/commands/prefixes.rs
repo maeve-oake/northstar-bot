@@ -1,9 +1,7 @@
 use rusqlite::{Connection, Error, Result};
 use serenity::framework::standard::macros::command;
 use serenity::framework::standard::CommandResult;
-use serenity::model::prelude::GuildId;
-use serenity::model::prelude::*;
-use serenity::prelude::*;
+use serenity::all::*;
 
 use crate::DEFAULTPREFIX;
 
@@ -19,12 +17,12 @@ async fn prefix(ctx: &Context, msg: &Message) -> CommandResult {
     let conn = Connection::open("./prefix.db").expect("db fucked");
     let prefix = args[1].chars().nth(0).unwrap();
     conn.execute(
-        &("DELETE FROM Servers WHERE id = ".to_owned() + &msg.guild_id.unwrap().to_string()),
+        &("DELETE FROM Servers WHERE id = ".to_owned() + &msg.guild_id.unwrap().get().to_string()),
         (),
     )?;
 
     let new_server = Server {
-        id: *msg.guild_id.unwrap().as_u64(),
+        id: msg.guild_id.unwrap().get(),
         prefix: prefix.to_string(),
     };
 
@@ -53,7 +51,7 @@ pub fn check_db_prefix(guild_id: Option<GuildId>) -> Option<String> {
     match conn
         .prepare(
             &("SELECT prefix FROM Servers WHERE id = ".to_owned()
-                + &guild_id.unwrap().as_u64().to_string()),
+                + &guild_id.unwrap().get().to_string()),
         )
         .expect("fail")
     {
@@ -75,7 +73,7 @@ pub async fn new_server_reg(guild_id: u64) -> Result<(), Error> {
     conn.execute(
         "CREATE TABLE IF NOT EXISTS Servers (
              id text null unique,
-             prefix text not null 
+             prefix text not null
          )",
         (),
     )?;
