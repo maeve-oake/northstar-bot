@@ -33,18 +33,18 @@ async fn info(ctx: &Context, msg: &Message) -> CommandResult {
     let embed = CreateEmbed::new()
         .title("Northstar Servers Bot")
         .description(
-"Made by hummusbird
+"Made by maeve-oake
 Remade in Rust by H0L0
 
 A discord bot that displays that status of the northstar.tf servers
 
 ",
         )
-        .field("hummusbird", "https://birb.cc", false)
+        .field("maeve-oake", "https://miaow.ing", false)
         .field("H0L0", "https://h0l0.cc", false)
         .color(Color::from_rgb(244, 32, 105))
         .thumbnail("https://northstar.tf/assets/logo_1k.png")
-        .url("https://github.com/hummusbird/northstar-bot");
+        .url("https://github.com/maeve-oake/northstar-bot");
 
     let message = CreateMessage::new().content("").embed(embed);
 

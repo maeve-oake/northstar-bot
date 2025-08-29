@@ -1,6 +1,6 @@
 # northstar bot
 
-Written in JS by hummusbird
+Written in JS by maeve-oake
 
 Rewritten in rust by H0L0
 
@@ -28,7 +28,7 @@ Rewritten in rust by H0L0
 
 ,wiki                   - link to the Northstar Wiki
 
-,github                 - link to the Northstar Github 
+,github                 - link to the Northstar Github
 
 ,info                   - displays information about the bot
 
