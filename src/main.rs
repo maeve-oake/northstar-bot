@@ -120,8 +120,6 @@ async fn main() {
     framework.group_add(&LINK_GROUP);
     framework.group_add(&NORTHSTAR_GROUP);
 
-    dotenv::dotenv().expect("Failed to load .env file");
-
     let token = env::var("DISCORD_TOKEN").expect("token");
     let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
     let mut client = Client::builder(token, intents)
