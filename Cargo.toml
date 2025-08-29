@@ -1,5 +1,5 @@
 [package]
-name = "northstar_servers_bot"
+name = "northstar-bot"
 version = "1.1.0"
 authors = ["H0l0","maeve-oake"]
 edition = "2021"
