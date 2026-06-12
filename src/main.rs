@@ -26,10 +26,6 @@ static MS: &str = "https://northstar.tf";
 #[commands(prefix)]
 struct General;
 
-#[group("LIST")]
-#[commands(maps, modes, playlistvars, help)]
-struct List;
-
 #[group("NORTHSTAR")]
 #[commands(status, search)]
 struct Northstar;
@@ -45,6 +41,8 @@ impl EventHandler for Handler {
             Command::create_global_command(&ctx.http, commands::titancoins::register()).await;
         let _guild_command =
             Command::create_global_command(&ctx.http, commands::links::register()).await;
+        let _guild_command =
+            Command::create_global_command(&ctx.http, commands::lists::register()).await;
 
         set_activity(ctx).await;
     }
@@ -78,6 +76,18 @@ impl EventHandler for Handler {
 
                 "host" => CreateInteractionResponseMessage::new()
                     .content(commands::links::host(&command.data.options)),
+
+                "help" => CreateInteractionResponseMessage::new()
+                    .content(commands::lists::help(&command.data.options)),
+
+                "maps" => CreateInteractionResponseMessage::new()
+                    .content(commands::lists::maps(&command.data.options)),
+
+                "modes" => CreateInteractionResponseMessage::new()
+                    .content(commands::lists::modes(&command.data.options)),
+
+                "playlistvars" => CreateInteractionResponseMessage::new()
+                    .content(commands::lists::playlistvars(&command.data.options)),
 
                 _ => CreateInteractionResponseMessage::new().content(":("),
             };
@@ -116,10 +126,7 @@ async fn main() {
     let framework = StandardFramework::new();
     framework.configure(config);
 
-    let framework = framework
-        .group(&GENERAL_GROUP)
-        .group(&LIST_GROUP)
-        .group(&NORTHSTAR_GROUP);
+    let framework = framework.group(&GENERAL_GROUP).group(&NORTHSTAR_GROUP);
 
     let token = env::var("DISCORD_TOKEN").expect("token");
     let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
