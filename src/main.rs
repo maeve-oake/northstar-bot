@@ -29,6 +29,8 @@ impl EventHandler for Handler {
             Command::create_global_command(&ctx.http, commands::links::register()).await;
         let _guild_command =
             Command::create_global_command(&ctx.http, commands::lists::register()).await;
+        let _guild_command =
+            Command::create_global_command(&ctx.http, commands::northstar::register()).await;
 
         set_activity(ctx).await;
     }
@@ -62,6 +64,9 @@ impl EventHandler for Handler {
 
                 "playlistvars" => CreateInteractionResponseMessage::new()
                     .content(commands::lists::playlistvars(&command.data.options)),
+
+                "status" => CreateInteractionResponseMessage::new()
+                    .content(commands::northstar::status(&command.data.options).await),
 
                 _ => CreateInteractionResponseMessage::new().content(":("),
             };

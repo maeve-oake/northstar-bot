@@ -170,7 +170,7 @@ sns_reset_kill_value
 sns_melee_kill_value
 sns_reset_pulse_blade_cooldown_on_pulse_blade_kill
 ```"
-        .to_string()
+    .to_string()
 }
 
 pub fn register() -> CreateCommand {
