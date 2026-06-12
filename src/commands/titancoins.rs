@@ -1,20 +1,20 @@
 use std::time::Duration;
 
 use rand::Rng;
-use serenity::framework::standard::CommandResult;
 use serenity::all::*;
+use serenity::framework::standard::CommandResult;
 use tokio::time::sleep;
 
-use serenity::all::CreateCommand;
 use serenity::all::CommandDataOption;
+use serenity::all::CreateCommand;
 
 pub fn run(_options: &[CommandDataOption]) -> String {
     let redeem_amount: i32 = rand::rng().random_range(50..250);
-"```diff
+    "```diff
 +"
-        .to_owned()
-            + &redeem_amount.to_string()
-            + " ScorchBucks```
+    .to_owned()
+        + &redeem_amount.to_string()
+        + " ScorchBucks```
 "
 }
 

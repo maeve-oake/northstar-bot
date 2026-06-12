@@ -1,14 +1,14 @@
 use std::env;
 
+use serenity::all::Command;
+use serenity::all::Guild;
+use serenity::all::OnlineStatus;
+use serenity::all::{ActivityData, Ready};
+use serenity::all::{CreateInteractionResponse, CreateInteractionResponseMessage, Interaction};
 use serenity::async_trait;
 use serenity::framework::standard::macros::group;
 use serenity::framework::standard::{Configuration, StandardFramework};
-use serenity::all::Command;
-use serenity::all::{Interaction, CreateInteractionResponseMessage, CreateInteractionResponse};
 use serenity::model::channel::Message;
-use serenity::all::{ActivityData, Ready};
-use serenity::all::Guild;
-use serenity::all::OnlineStatus;
 use serenity::prelude::*;
 
 mod commands;
@@ -30,10 +30,6 @@ struct General;
 #[commands(maps, modes, playlistvars, help)]
 struct List;
 
-#[group("LINKS")]
-#[commands(birb, github, wiki, info)]
-struct Link;
-
 #[group("NORTHSTAR")]
 #[commands(status, search)]
 struct Northstar;
@@ -45,8 +41,10 @@ impl EventHandler for Handler {
         println!("Connected as {}", ready.user.name);
         let guilds = ctx.cache.guilds().len();
         println!("The bot is in {} guilds", guilds);
-        let _guild_command = Command::create_global_command(&ctx.http, commands::titancoins::register())
-        .await;
+        let _guild_command =
+            Command::create_global_command(&ctx.http, commands::titancoins::register()).await;
+        let _guild_command =
+            Command::create_global_command(&ctx.http, commands::links::register()).await;
 
         set_activity(ctx).await;
     }
@@ -65,15 +63,17 @@ impl EventHandler for Handler {
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::Command(command) = interaction {
+            let message = match command.data.name.as_str() {
+                "redeem" => CreateInteractionResponseMessage::new()
+                    .content(commands::titancoins::run(&command.data.options)),
 
-            let content = match command.data.name.as_str() {
-                "redeem" => commands::titancoins::run(&command.data.options),
-                _ => ":(".to_string(),
+                "info" => CreateInteractionResponseMessage::new()
+                    .embed(commands::links::info(&command.data.options)),
+
+                _ => CreateInteractionResponseMessage::new().content(":("),
             };
 
-            let response = CreateInteractionResponse::Message(
-                CreateInteractionResponseMessage::new().content(content)
-            );
+            let response = CreateInteractionResponse::Message(message);
 
             if let Err(why) = command.create_response(&ctx.http, response).await {
                 println!("Cannot respond to slash command: {}", why);
@@ -110,7 +110,6 @@ async fn main() {
     let framework = framework
         .group(&GENERAL_GROUP)
         .group(&LIST_GROUP)
-        .group(&LINK_GROUP)
         .group(&NORTHSTAR_GROUP);
 
     let token = env::var("DISCORD_TOKEN").expect("token");

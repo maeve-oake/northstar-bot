@@ -1,6 +1,6 @@
-use serenity::framework::standard::macros::command;
-use serenity::framework::standard::CommandResult;
 use serenity::all::*;
+use serenity::framework::standard::CommandResult;
+use serenity::framework::standard::macros::command;
 
 use super::prefixes::check_db_prefix;
 

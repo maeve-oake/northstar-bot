@@ -1,7 +1,7 @@
 use reqwest::Response;
-use serenity::framework::standard::macros::command;
-use serenity::framework::standard::CommandResult;
 use serenity::all::*;
+use serenity::framework::standard::CommandResult;
+use serenity::framework::standard::macros::command;
 use std::collections::HashMap;
 
 use crate::MS;

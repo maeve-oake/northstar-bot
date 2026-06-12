@@ -1,7 +1,7 @@
 use rusqlite::{Connection, Error, Result};
-use serenity::framework::standard::macros::command;
-use serenity::framework::standard::CommandResult;
 use serenity::all::*;
+use serenity::framework::standard::CommandResult;
+use serenity::framework::standard::macros::command;
 
 use crate::DEFAULTPREFIX;
 
