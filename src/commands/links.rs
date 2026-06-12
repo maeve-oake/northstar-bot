@@ -4,32 +4,6 @@ use serenity::framework::standard::CommandResult;
 use serenity::all::CommandDataOption;
 use serenity::all::CreateCommand;
 
-// #[command]
-// #[aliases(video, vid, host)]
-// async fn birb(ctx: &Context, msg: &Message) -> CommandResult {
-//     msg.channel_id
-//         .say(ctx, "https://youtu.be/EZ3w2Nl9SZo")
-//         .await?;
-//     Ok(())
-// }
-
-// #[command]
-// async fn wiki(ctx: &Context, msg: &Message) -> CommandResult {
-//     msg.channel_id
-//         .say(ctx, "https://r2northstar.gitbook.io/r2northstar-wiki/")
-//         .await?;
-//     Ok(())
-// }
-
-// #[command]
-// #[aliases(git)]
-// async fn github(ctx: &Context, msg: &Message) -> CommandResult {
-//     msg.channel_id
-//         .say(ctx, "https://github.com/R2Northstar")
-//         .await?;
-//     Ok(())
-// }
-
 pub fn info(_options: &[CommandDataOption]) -> CreateEmbed {
     CreateEmbed::new()
         .title("Northstar Servers Bot")
@@ -48,6 +22,21 @@ A discord bot that displays the status of the northstar.tf servers
         .url("https://github.com/maeve-oake/northstar-bot")
 }
 
+pub fn github(_options: &[CommandDataOption]) -> String {
+    "https://github.com/R2Northstar".to_string()
+}
+
+pub fn wiki(_options: &[CommandDataOption]) -> String {
+    "https://r2northstar.gitbook.io/r2northstar-wiki/".to_string()
+}
+
+pub fn host(_options: &[CommandDataOption]) -> String {
+    "https://youtu.be/EZ3w2Nl9SZo".to_string()
+}
+
 pub fn register() -> CreateCommand {
-    CreateCommand::new("info").description("display info about the bot")
+    CreateCommand::new("info").description("display info about the bot");
+    CreateCommand::new("github").description("links the northstar github");
+    CreateCommand::new("wiki").description("links the northstar wiki");
+    CreateCommand::new("host").description("links hummusbird's server tutorial")
 }

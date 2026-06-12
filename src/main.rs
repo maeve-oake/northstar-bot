@@ -70,6 +70,15 @@ impl EventHandler for Handler {
                 "info" => CreateInteractionResponseMessage::new()
                     .embed(commands::links::info(&command.data.options)),
 
+                "github" => CreateInteractionResponseMessage::new()
+                    .content(commands::links::github(&command.data.options)),
+
+                "wiki" => CreateInteractionResponseMessage::new()
+                    .content(commands::links::wiki(&command.data.options)),
+
+                "host" => CreateInteractionResponseMessage::new()
+                    .content(commands::links::host(&command.data.options)),
+
                 _ => CreateInteractionResponseMessage::new().content(":("),
             };
 
