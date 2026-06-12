@@ -56,11 +56,6 @@ impl EventHandler for Handler {
     }
 
     async fn message(&self, ctx: Context, msg: Message) {
-        if msg.content == "/redeem" {
-            if let Err(why) = redeem(&ctx, &msg).await {
-                println!("Error sending message: {:?}", why);
-            }
-        }
         if msg.content.contains("<@925064195186233344>") {
             if let Err(why) = msg.reply_ping(ctx, "what").await {
                 println!("Error sending message: {:?}", why);
