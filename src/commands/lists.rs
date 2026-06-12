@@ -209,6 +209,6 @@ pub fn playlistvars(_options: &[CommandDataOption]) -> String {
 pub fn register() -> CreateCommand {
     CreateCommand::new("help").description("lists available commands");
     CreateCommand::new("maps").description("lists all Titanfall 2 maps");
-    CreateCommand::new("modes").description("lists all Titanfall 2 gamemodesi");
+    CreateCommand::new("modes").description("lists all Titanfall 2 gamemodes");
     CreateCommand::new("playlistvars").description("lists some useful playlist vars")
 }

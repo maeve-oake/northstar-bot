@@ -1,14 +1,10 @@
 use std::env;
 
 use serenity::all::Command;
-use serenity::all::Guild;
 use serenity::all::OnlineStatus;
 use serenity::all::{ActivityData, Ready};
 use serenity::all::{CreateInteractionResponse, CreateInteractionResponseMessage, Interaction};
 use serenity::async_trait;
-use serenity::framework::standard::macros::group;
-use serenity::framework::standard::{Configuration, StandardFramework};
-use serenity::model::channel::Message;
 use serenity::prelude::*;
 
 mod commands;
@@ -16,19 +12,9 @@ mod commands;
 use crate::commands::links::*;
 use crate::commands::lists::*;
 use crate::commands::northstar::*;
-use crate::commands::prefixes::*;
 use crate::commands::titancoins::*;
 
-static DEFAULTPREFIX: &str = ",";
 static MS: &str = "https://northstar.tf";
-
-#[group("GENERAL")]
-#[commands(prefix)]
-struct General;
-
-#[group("NORTHSTAR")]
-#[commands(status, search)]
-struct Northstar;
 
 struct Handler;
 #[async_trait]
@@ -45,18 +31,6 @@ impl EventHandler for Handler {
             Command::create_global_command(&ctx.http, commands::lists::register()).await;
 
         set_activity(ctx).await;
-    }
-
-    async fn guild_create(&self, _ctx: Context, guild: Guild, _is_new: Option<bool>) {
-        new_server_reg(guild.id.get()).await.expect("fuck");
-    }
-
-    async fn message(&self, ctx: Context, msg: Message) {
-        if msg.content.contains("<@925064195186233344>") {
-            if let Err(why) = msg.reply_ping(ctx, "what").await {
-                println!("Error sending message: {:?}", why);
-            }
-        }
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
@@ -119,20 +93,10 @@ async fn main() {
         }
     }
 
-    let config = Configuration::new()
-        .dynamic_prefix(|_, msg| Box::pin(async move { check_db_prefix(msg.guild_id) }))
-        .prefix("");
-
-    let framework = StandardFramework::new();
-    framework.configure(config);
-
-    let framework = framework.group(&GENERAL_GROUP).group(&NORTHSTAR_GROUP);
-
     let token = env::var("DISCORD_TOKEN").expect("token");
-    let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
+    let intents = GatewayIntents::non_privileged();
     let mut client = Client::builder(token, intents)
         .event_handler(Handler)
-        .framework(framework)
         .await
         .expect("Error creating client");
 
