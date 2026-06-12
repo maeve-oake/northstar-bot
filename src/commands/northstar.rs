@@ -90,184 +90,187 @@ async fn northstar_server_json() -> Result<Response, reqwest::Error> {
     return res;
 }
 
-// #[command]
-// async fn search(ctx: &Context, msg: &Message) -> CommandResult {
-//     let json = northstar_server_json().await;
-//     match json {
-//         Ok(res) => {
-//             let args: Vec<&str> = msg.content.split(" ").collect();
-//             let mut searchtype = "name";
-//             let mut search = "";
-//             if args.len() == 3 {
-//                 search = args[2];
-//             }
-//             if args.len() == 1 {
-//                 msg.channel_id
-//                     .say(ctx, "```diff\n- Please specify title, map or mode```")
-//                     .await?;
-//             } else {
-//                 match args[1] {
-//                     "mode" | "modes" | "gamemodes" => {
-//                         if args.len() != 3 || get_playlist_name(args[2]).unwrap() == "no gamemode?"
-//                         {
-//                             msg.channel_id
-//                                 .say(ctx, "```diff\n- Please specify a valid gamemode.```")
-//                                 .await?;
-//                             panic!("Not valid gamemode");
-//                         }
-//                         searchtype = "playlist";
-//                     }
-//                     "map" | "maps" => {
-//                         if args.len() != 3 || get_map_name(args[2]).unwrap() == "no map?" {
-//                             msg.channel_id
-//                                 .say(ctx, "```diff\n- Please specify a valid map.```")
-//                                 .await?;
-//                             panic!("Not valid map");
-//                         }
-//                         searchtype = "map";
-//                     }
-//                     "title" | "name" => {
-//                         if args.len() != 3 || args[2] == " " {
-//                             msg.channel_id
-//                                 .say(ctx, "```diff\n- Please specify a search term.```")
-//                                 .await?;
-//                             panic!("Not valid search term");
-//                         }
-//                         searchtype = "name";
-//                     }
-//                     "region" => {
-//                         if args.len() != 3 || args[2] == " " {
-//                             msg.channel_id
-//                                 .say(ctx, "```diff\n- Please specify a search term.```")
-//                                 .await?;
-//                             panic!("Not valid search term");
-//                         }
-//                         searchtype = "region";
-//                     }
-//                     _ => {
-//                         search = args[1];
-//                     }
-//                 }
+pub async fn search(options: &[CommandDataOption]) -> String {
+    let json = northstar_server_json().await;
 
-//                 let json = res.text().await.unwrap();
-//                 let json: serde_json::Value = serde_json::from_str(&json).unwrap();
+    match json {
+        Ok(res) => {
+            let mut searchtype = "name";
+            let mut search = "";
 
-//                 let mut lobbies: Vec<&serde_json::Value> = [].to_vec();
-//                 for i in 0..json.as_array().unwrap().len() {
-//                     let jsonsearch = json.get(i).and_then(|value| value.get(searchtype));
-//                     if jsonsearch.is_some()
-//                         && jsonsearch
-//                             .unwrap()
-//                             .to_string()
-//                             .replace('"', "")
-//                             .to_ascii_lowercase()
-//                             .contains(&search.to_ascii_lowercase())
-//                     {
-//                         if searchtype == "playlist" {
-//                             if !jsonsearch
-//                                 .unwrap()
-//                                 .to_string()
-//                                 .to_ascii_lowercase()
-//                                 .contains("private_match")
-//                                 || args[2] == "private_match"
-//                             {
-//                                 lobbies.push(json.get(i).unwrap())
-//                             }
-//                         } else {
-//                             lobbies.push(json.get(i).unwrap())
-//                         }
-//                     }
-//                 }
-//                 if lobbies.len() == 0 {
-//                     msg.channel_id
-//                         .say(ctx, "```diff\n- No servers were found.```")
-//                         .await
-//                         .unwrap();
-//                 } else {
-//                     let mut searchstring = "```diff\n+ ".to_owned()
-//                         + &lobbies.len().to_string()
-//                         + &" servers were found".to_owned();
-//                     if lobbies.len() > 10 {
-//                         searchstring += " - displaying first 10 results \n";
-//                     }
-//                     for i in 0..lobbies.len() {
-//                         if i < 10 {
-//                             let playingtext: String;
-//                             if lobbies[i]["hasPassword"] == true {
-//                                 playingtext = "- PASSWORD PROTECTED!\n".to_string()
-//                             } else if lobbies[i]["map"].to_string().replace('"', "") == "mp_lobby" {
-//                                 playingtext = "- Currently in the lobby\n".to_string()
-//                             } else {
-//                                 playingtext = "+ ".to_owned()
-//                                     + &"Playing "
-//                                     + get_playlist_name(
-//                                         &lobbies[i]
-//                                             .get("playlist")
-//                                             .unwrap()
-//                                             .to_string()
-//                                             .replace('"', ""),
-//                                     )
-//                                     .unwrap()
-//                                     + " on "
-//                                     + &get_map_name(
-//                                         &lobbies[i]
-//                                             .get("map")
-//                                             .unwrap()
-//                                             .to_string()
-//                                             .replace('"', ""),
-//                                     )
-//                                     .unwrap()
-//                                     + "\n";
-//                             }
-//                             if lobbies[i].get("playerCount") == lobbies[i].get("maxPlayers") {
-//                                 searchstring += &("\n".to_owned()
-//                                     + &(lobbies[i]
-//                                         .get("name")
-//                                         .unwrap()
-//                                         .to_string()
-//                                         .replace('"', "")
-//                                         .replace("`", "")
-//                                         + "\n"
-//                                         + "- "
-//                                         + &lobbies[i].get("playerCount").unwrap().to_string()
-//                                         + &" / ".to_string()
-//                                         + &lobbies[i].get("maxPlayers").unwrap().to_string()
-//                                         + " players connected"
-//                                         + "\n"
-//                                         + &playingtext));
-//                             } else {
-//                                 searchstring += &("\n".to_owned()
-//                                     + &(lobbies[i]
-//                                         .get("name")
-//                                         .unwrap()
-//                                         .to_string()
-//                                         .replace('"', "")
-//                                         .replace("`", "")
-//                                         + "\n"
-//                                         + "+ "
-//                                         + &lobbies[i].get("playerCount").unwrap().to_string()
-//                                         + &" / ".to_string()
-//                                         + &lobbies[i].get("maxPlayers").unwrap().to_string()
-//                                         + " players connected"
-//                                         + "\n"
-//                                         + &playingtext));
-//                             }
-//                         }
-//                     }
-//                     msg.channel_id.say(ctx, searchstring + "```").await.unwrap();
-//                 }
-//             }
-//             Ok(())
-//         }
-//         Err(_) => {
-//             msg.channel_id
-//                 .say(ctx, "```diff\n- Well fuck! There seems to be a problem```")
-//                 .await
-//                 .unwrap();
-//             panic!("oh nyo it failed")
-//         }
-//     }
-// }
+            let kind = options
+                .iter()
+                .find(|option| option.name == "type")
+                .and_then(|option| match &option.value {
+                    CommandDataOptionValue::String(value) => Some(value.as_str()),
+                    _ => None,
+                })
+                .unwrap_or("title");
+
+            if let Some(value) = options
+                .iter()
+                .find(|option| option.name == "query")
+                .and_then(|option| match &option.value {
+                    CommandDataOptionValue::String(value) => Some(value.as_str()),
+                    _ => None,
+                })
+            {
+                search = value;
+            }
+
+            match kind {
+                "mode" | "modes" | "gamemodes" => {
+                    if get_playlist_name(search).unwrap() == "no gamemode?" {
+                        return "```diff\n- Please specify a valid gamemode.```".to_string();
+                    }
+
+                    searchtype = "playlist";
+                }
+
+                "map" | "maps" => {
+                    if get_map_name(search).unwrap() == "no map?" {
+                        return "```diff\n- Please specify a valid map.```".to_string();
+                    }
+
+                    searchtype = "map";
+                }
+
+                "title" | "name" => {
+                    if search == " " {
+                        return "```diff\n- Please specify a search term.```".to_string();
+                    }
+
+                    searchtype = "name";
+                }
+
+                "region" => {
+                    if search == " " {
+                        return "```diff\n- Please specify a search term.```".to_string();
+                    }
+
+                    searchtype = "region";
+                }
+
+                _ => {
+                    search = kind;
+                }
+            }
+
+            let json = res.text().await.unwrap();
+            let json: serde_json::Value = serde_json::from_str(&json).unwrap();
+
+            let mut lobbies: Vec<&serde_json::Value> = [].to_vec();
+
+            for i in 0..json.as_array().unwrap().len() {
+                let jsonsearch = json.get(i).and_then(|value| value.get(searchtype));
+
+                if jsonsearch.is_some()
+                    && jsonsearch
+                        .unwrap()
+                        .to_string()
+                        .replace('"', "")
+                        .to_ascii_lowercase()
+                        .contains(&search.to_ascii_lowercase())
+                {
+                    if searchtype == "playlist" {
+                        if !jsonsearch
+                            .unwrap()
+                            .to_string()
+                            .to_ascii_lowercase()
+                            .contains("private_match")
+                            || search == "private_match"
+                        {
+                            lobbies.push(json.get(i).unwrap())
+                        }
+                    } else {
+                        lobbies.push(json.get(i).unwrap())
+                    }
+                }
+            }
+
+            if lobbies.len() == 0 {
+                "```diff\n- No servers were found.```".to_string()
+            } else {
+                let mut searchstring = "```diff\n+ ".to_owned()
+                    + &lobbies.len().to_string()
+                    + &" servers were found".to_owned();
+
+                if lobbies.len() > 10 {
+                    searchstring += " - displaying first 10 results \n";
+                }
+
+                for i in 0..lobbies.len() {
+                    if i < 10 {
+                        let playingtext: String;
+
+                        if lobbies[i]["hasPassword"] == true {
+                            playingtext = "- PASSWORD PROTECTED!\n".to_string()
+                        } else if lobbies[i]["map"].to_string().replace('"', "") == "mp_lobby" {
+                            playingtext = "- Currently in the lobby\n".to_string()
+                        } else {
+                            playingtext = "+ ".to_owned()
+                                + &"Playing "
+                                + get_playlist_name(
+                                    &lobbies[i]
+                                        .get("playlist")
+                                        .unwrap()
+                                        .to_string()
+                                        .replace('"', ""),
+                                )
+                                .unwrap()
+                                + " on "
+                                + &get_map_name(
+                                    &lobbies[i].get("map").unwrap().to_string().replace('"', ""),
+                                )
+                                .unwrap()
+                                + "\n";
+                        }
+
+                        if lobbies[i].get("playerCount") == lobbies[i].get("maxPlayers") {
+                            searchstring += &("\n".to_owned()
+                                + &(lobbies[i]
+                                    .get("name")
+                                    .unwrap()
+                                    .to_string()
+                                    .replace('"', "")
+                                    .replace("`", "")
+                                    + "\n"
+                                    + "- "
+                                    + &lobbies[i].get("playerCount").unwrap().to_string()
+                                    + &" / ".to_string()
+                                    + &lobbies[i].get("maxPlayers").unwrap().to_string()
+                                    + " players connected"
+                                    + "\n"
+                                    + &playingtext));
+                        } else {
+                            searchstring += &("\n".to_owned()
+                                + &(lobbies[i]
+                                    .get("name")
+                                    .unwrap()
+                                    .to_string()
+                                    .replace('"', "")
+                                    .replace("`", "")
+                                    + "\n"
+                                    + "+ "
+                                    + &lobbies[i].get("playerCount").unwrap().to_string()
+                                    + &" / ".to_string()
+                                    + &lobbies[i].get("maxPlayers").unwrap().to_string()
+                                    + " players connected"
+                                    + "\n"
+                                    + &playingtext));
+                        }
+                    }
+                }
+
+                searchstring + "```"
+            }
+        }
+
+        Err(_) => {
+            panic!("oh nyo it failed")
+        }
+    }
+}
 
 pub fn get_map_name(name: &str) -> Option<&str> {
     let maps = HashMap::from([
@@ -369,5 +372,18 @@ pub fn get_playlist_name(name: &str) -> Option<&str> {
 
 pub fn register() -> CreateCommand {
     CreateCommand::new("status").description("a general overview of northstar.tf");
-    CreateCommand::new("search").description("search")
+    CreateCommand::new("search")
+        .description("search Northstar servers")
+        .add_option(
+            CreateCommandOption::new(CommandOptionType::String, "type", "what to search")
+                .required(true)
+                .add_string_choice("title", "title")
+                .add_string_choice("map", "map")
+                .add_string_choice("mode", "mode")
+                .add_string_choice("region", "region"),
+        )
+        .add_option(
+            CreateCommandOption::new(CommandOptionType::String, "query", "search query")
+                .required(true),
+        )
 }

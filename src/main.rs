@@ -67,6 +67,9 @@ impl EventHandler for Handler {
 
                 "status" => CreateInteractionResponseMessage::new()
                     .content(commands::northstar::status(&command.data.options).await),
+                    
+                "search" => CreateInteractionResponseMessage::new()
+                    .content(commands::northstar::search(&command.data.options).await),
 
                 _ => CreateInteractionResponseMessage::new().content(":("),
             };
